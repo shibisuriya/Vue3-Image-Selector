@@ -66,16 +66,23 @@
       accept=".pdf"
       ref="pdf"
     />
+    <ImageCropper v-if="showCropper" :base64image="base64image"></ImageCropper>
   </div>
 </template>
 
 <script>
+import ImageCropper from "./ImageCropper.vue";
 export default {
   data() {
     return {
       fileType: "file",
       url: "",
+      showCropper: false,
+      base64image: "",
     };
+  },
+  components: {
+    ImageCropper,
   },
   methods: {
     optionSelected() {
@@ -111,8 +118,9 @@ export default {
       const selectedImage = e.target.files[0]; // Only select the first file...
       const reader = new FileReader();
       reader.onload = (e) => {
-        const image = e.target.result;
-        console.log(image);
+        this.base64image = e.target.result;
+        console.log(this.base64image);
+        this.showCropper = true;
       };
       reader.readAsDataURL(selectedImage);
     },
