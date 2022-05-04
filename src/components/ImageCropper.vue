@@ -1,19 +1,5 @@
 <template>
   <div>
-    <div class="header">
-      <h2>Vue CropperJS</h2>
-      <a href="https://github.com/Agontuk/vue-cropperjs">Github</a>
-    </div>
-    <hr />
-
-    <input
-      ref="input"
-      type="file"
-      name="image"
-      accept="image/*"
-      @change="setImage"
-    />
-
     <div class="content">
       <section class="cropper-area">
         <div class="img-cropper">
@@ -49,25 +35,10 @@
           </a>
           <a href="#" role="button" @click.prevent="cropImage"> Crop </a>
           <a href="#" role="button" @click.prevent="reset"> Reset </a>
-          <a href="#" role="button" @click.prevent="getData"> Get Data </a>
-          <a href="#" role="button" @click.prevent="setData"> Set Data </a>
-          <a href="#" role="button" @click.prevent="getCropBoxData">
-            Get CropBox Data
-          </a>
-          <a href="#" role="button" @click.prevent="setCropBoxData">
-            Set CropBox Data
-          </a>
-          <a href="#" role="button" @click.prevent="showFileChooser">
-            Upload Image
-          </a>
+          <a href="#" role="button"> Cancel </a>
         </div>
-
-        <textarea v-model="data" />
       </section>
       <section class="preview-area">
-        <p>Preview</p>
-        <div class="preview" />
-        <p>Cropped Image</p>
         <div class="cropped-image">
           <img v-if="cropImg" :src="cropImg" alt="Cropped Image" />
           <div v-else class="crop-placeholder" />
@@ -92,10 +63,17 @@ export default {
       data: null,
     };
   },
+  mounted() {
+    this.imgSrc = this.base64image;
+    // rebuild cropperjs with the updated source
+    this.$refs.cropper.replace(this.base64image);
+  },
+  props: ["base64image"],
   methods: {
     cropImage() {
       // get image data for post processing, e.g. upload or setting image src
       this.cropImg = this.$refs.cropper.getCroppedCanvas().toDataURL();
+      this.$emit("recieveCroppedImage", this.cropImg);
     },
     flipX() {
       const dom = this.$refs.flipX;

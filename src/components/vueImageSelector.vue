@@ -1,77 +1,89 @@
 <template>
   <div class="image-selector-container">
-    <div class="drag-and-drop">Drag & Drop</div>
-    <input
-      type="text"
-      class="url"
-      v-model="url"
-      v-if="fileType == 'url'"
-      placeholder="URL"
-    />
+    <div v-if="showFileSelector">
+      <div class="drag-and-drop">Drag & Drop</div>
+      <input
+        type="text"
+        class="url"
+        v-model="url"
+        v-if="fileType == 'url'"
+        placeholder="URL"
+      />
 
-    <div class="selectors-container">
-      <div>
-        <input
-          v-model="fileType"
-          type="radio"
-          id="file"
-          name="inputType"
-          value="file"
-        />
-        <label for="file">File</label>
+      <div class="selectors-container">
+        <div>
+          <input
+            v-model="fileType"
+            type="radio"
+            id="file"
+            name="inputType"
+            value="file"
+          />
+          <label for="file">File</label>
+        </div>
+        <div>
+          <input
+            v-model="fileType"
+            type="radio"
+            id="webcam"
+            name="inputType"
+            value="webcam"
+          />
+          <label for="webcam">Webcam</label>
+        </div>
+        <div>
+          <input
+            v-model="fileType"
+            type="radio"
+            id="url"
+            name="inputType"
+            value="url"
+          />
+          <label for="url">URL</label>
+        </div>
+        <div>
+          <input
+            v-model="fileType"
+            type="radio"
+            id="pdf"
+            name="inputType"
+            value="pdf"
+          />
+          <label for="pdf">PDF</label>
+        </div>
       </div>
-      <div>
-        <input
-          v-model="fileType"
-          type="radio"
-          id="webcam"
-          name="inputType"
-          value="webcam"
-        />
-        <label for="webcam">Webcam</label>
-      </div>
-      <div>
-        <input
-          v-model="fileType"
-          type="radio"
-          id="url"
-          name="inputType"
-          value="url"
-        />
-        <label for="url">URL</label>
-      </div>
-      <div>
-        <input
-          v-model="fileType"
-          type="radio"
-          id="pdf"
-          name="inputType"
-          value="pdf"
-        />
-        <label for="pdf">PDF</label>
-      </div>
+      <button class="proceed-button" @click="optionSelected">Proceed</button>
+      <input
+        type="file"
+        @input="fileChanged"
+        :hidden="true"
+        accept="image/*"
+        ref="file"
+      />
+      <input
+        type="file"
+        @input="pdfChanged"
+        :hidden="true"
+        accept=".pdf"
+        ref="pdf"
+      />
     </div>
-    <button class="proceed-button" @click="optionSelected">Proceed</button>
-    <input
-      type="file"
-      @input="fileChanged"
-      :hidden="true"
-      accept="image/*"
-      ref="file"
-    />
-    <input
-      type="file"
-      @input="pdfChanged"
-      :hidden="true"
-      accept=".pdf"
-      ref="pdf"
-    />
-    <ImageCropper v-if="showCropper" :base64image="base64image"></ImageCropper>
+    <ImageCropper
+      v-if="showCropper"
+      :base64image="base64image"
+      @recieveCroppedImage="recieveCroppedImage"
+    ></ImageCropper>
+    <ImageComponent
+      v-if="showCroppedImage"
+      :image="croppedImage"
+      @reset="reset"
+    ></ImageComponent>
   </div>
 </template>
 
 <script>
 import ImageCropper from "./ImageCropper.vue";
+import ImageComponent from "./ImageComponent.vue";
 export default {
   data() {
     return {
@@ -79,12 +91,31 @@ export default {
       url: "",
       showCropper: false,
       base64image: "",
+      showFileSelector: true,
+      croppedImage: "",
+      showCroppedImage: false,
     };
   },
   components: {
     ImageCropper,
+    ImageComponent,
   },
   methods: {
+    reset() {
+      this.fileType = "file";
+      this.url = "";
+      this.showCropper = false;
+      this.base64image = "";
+      this.showFileSelector = true;
+      this.croppedImage = "";
+      this.showCroppedImage = "";
+    },
+    recieveCroppedImage(croppedImage) {
+      this.croppedImage = croppedImage;
+      this.showCropper = false;
+      this.showFileSelector = false;
+      this.showCroppedImage = true;
+    },
     optionSelected() {
       this.url = "";
       switch (this.fileType) {
@@ -119,8 +150,8 @@ export default {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.base64image = e.target.result;
-        console.log(this.base64image);
         this.showCropper = true;
+        this.showFileSelector = false;
       };
       reader.readAsDataURL(selectedImage);
     },
