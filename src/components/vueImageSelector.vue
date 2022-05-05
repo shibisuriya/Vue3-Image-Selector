@@ -69,6 +69,7 @@
       />
     </div>
     <ImageCropper
+      @cancel="reset"
       v-if="showCropper"
       :base64image="base64image"
       @recieveCroppedImage="recieveCroppedImage"
@@ -78,12 +79,17 @@
       :image="croppedImage"
       @reset="reset"
     ></ImageComponent>
+    <WebcamComponent
+      v-if="showWebcam"
+      @imageCaptured="recieveWebcamImage"
+    ></WebcamComponent>
   </div>
 </template>
 
 <script>
 import ImageCropper from "./ImageCropper.vue";
 import ImageComponent from "./ImageComponent.vue";
+import WebcamComponent from "./WebcamComponent.vue";
 export default {
   data() {
     return {
@@ -94,11 +100,13 @@ export default {
       showFileSelector: true,
       croppedImage: "",
       showCroppedImage: false,
+      showWebcam: false,
     };
   },
   components: {
     ImageCropper,
     ImageComponent,
+    WebcamComponent,
   },
   methods: {
     reset() {
@@ -109,6 +117,12 @@ export default {
       this.showFileSelector = true;
       this.croppedImage = "";
       this.showCroppedImage = "";
+    },
+    recieveWebcamImage(base64image) {
+      this.base64image = base64image;
+      this.showCropper = true;
+      this.showWebcam = false;
+      this.showFileSelector = false;
     },
     recieveCroppedImage(croppedImage) {
       this.croppedImage = croppedImage;
@@ -126,7 +140,7 @@ export default {
           this.$refs.pdf.click();
           break;
         case "webcam":
-          this.webcam();
+          this.showWebcam = true;
           break;
         case "url":
           this.processUrl();
@@ -138,9 +152,6 @@ export default {
     },
     pdf() {
       console.log("pdf");
-    },
-    webcam() {
-      console.log("webcam");
     },
     processUrl() {
       console.log("url");

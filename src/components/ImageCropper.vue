@@ -35,7 +35,7 @@
           </a>
           <a href="#" role="button" @click.prevent="cropImage"> Crop </a>
           <a href="#" role="button" @click.prevent="reset"> Reset </a>
-          <a href="#" role="button"> Cancel </a>
+          <a href="#" role="button" @click="cancel"> Cancel </a>
         </div>
       </section>
       <section class="preview-area">
@@ -70,6 +70,9 @@ export default {
   },
   props: ["base64image"],
   methods: {
+    cancel() {
+      this.$emit("cancel");
+    },
     cropImage() {
       // get image data for post processing, e.g. upload or setting image src
       this.cropImg = this.$refs.cropper.getCroppedCanvas().toDataURL();
